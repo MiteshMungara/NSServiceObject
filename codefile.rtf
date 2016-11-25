@@ -1,0 +1,247 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue255;\red163\green21\blue21;\red43\green131\blue159;
+\red26\green26\blue26;\red0\green128\blue0;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs36 \cf0 Json
+\fs24 \
+\pard\tx674\pardeftab674\pardirnatural
+
+\f1\fs28 \cf2 \CocoaLigature0 #import \cf3 "ServiceNSObject.h"
+\f0\fs24 \cf0 \CocoaLigature1 \
+
+\f1\fs28 \CocoaLigature0     \cf4 ServiceNSObject\cf0  *jsonServiceNSObjectCall;\
+
+\f0\fs24 \CocoaLigature1 \
+
+\f1\fs28 \cf5 \CocoaLigature0 jsonServiceNSObjectCall = [[ServiceNSObject alloc]init];\
+    NSDictionary *jsonDictionary =[jsonServiceNSObjectCall JsonServiceCall:[NSString stringWithFormat:@"%@/get_fill_good.php",DATABASEURL]];\
+    NSLog(@"jsonDictionary :%@",jsonDictionary);\
+    if (jsonDictionary) \{\
+        if ([[jsonDictionary valueForKey:@"success"] isEqualToString:@"1"]) \{\
+            AllDataArray = [jsonDictionary valueForKey:@"posts"];\
+        \}\
+    \}\
+\
+\cf0  \cf4 NSString\cf0  *myRequestString =[\cf4 NSString\cf0  \cf4 stringWithFormat\cf0 :\cf3 @"\{\\"tag_name\\":[%@]\}"\cf0 ,\cf4 itemsString\cf0 ];\
+    \cf4 jsonServiceNSObjectCall\cf0  = [[\cf4 ServiceNSObject\cf0  \cf4 alloc\cf0 ]\cf4 init\cf0 ];\
+    \cf4 NSDictionary\cf0  *jsonDictionary =[\cf4 jsonServiceNSObjectCall\cf0  \cf4 JsonPostServiceCall\cf0 :[\cf4 NSString\cf0  \cf4 stringWithFormat\cf0 :\cf3 @"%@/tagcategoryvideo.php"\cf0 ,\cf2 DATABASEURL\cf0 ] \cf4 PostTagSet\cf0 :myRequestString];\
+    \cf4 NSLog\cf0 (\cf3 @"jsonDictionary :%@"\cf0 ,jsonDictionary);\
+    \cf4 jsonDic\cf0  = [jsonDictionary \cf4 copy\cf0 ];\
+    \
+================================================================\
+\cf2 #import \cf3 "SidebarViewController.h"\cf0 \
+\cf2 @property\cf0  (\cf2 nonatomic\cf0 , \cf2 retain\cf0 ) \cf4 SidebarViewController\cf0 * sidebarVC;\
+  \cf6 /*UIPanGestureRecognizer* panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panDetected:)];\
+    [panGesture delaysTouchesBegan];\
+    [self.view addGestureRecognizer:panGesture];*/\cf0 \
+    \cf2 self\cf0 .\cf4 sidebarVC\cf0  = [[\cf4 SidebarViewController\cf0  \cf4 alloc\cf0 ] \cf4 init\cf0 ];\
+    [\cf2 self\cf0 .\cf4 sidebarVC\cf0  \cf4 setBgRGB\cf0 :0x000000];\
+    \cf2 self\cf0 .\cf4 sidebarVC\cf0 .\cf4 view\cf0 .\cf4 frame\cf0   = \cf2 self\cf0 .\cf4 view\cf0 .\cf4 bounds\cf0 ;\
+    [\cf2 self\cf0 .\cf4 view\cf0  \cf4 addSubview\cf0 :\cf2 self\cf0 .\cf4 sidebarVC\cf0 .\cf4 view\cf0 ];\
+\
+\
+- (\cf2 IBAction\cf0 )show:(\cf2 id\cf0 )sender\
+\{\
+    [\cf2 self\cf0 .\cf4 sidebarVC\cf0  \cf4 showHideSidebar\cf0 ];\
+\}\
+- (\cf2 void\cf0 )panDetected:(\cf4 UIPanGestureRecognizer\cf0 *)recoginzer\
+\{\
+    [\cf2 self\cf0 .\cf4 sidebarVC\cf0  \cf4 panDetected\cf0 :recoginzer];\
+\}\
+\cf5 \
+=====================================================\
+\cf2 #import \cf3 "MenuView.h"\cf5 \
+\cf2 @property\cf0  (\cf2 nonatomic\cf0 , \cf2 retain\cf0 ) \cf4 MenuView\cf0  *menuView;\
+\
+ \cf2 self\cf0 .\cf4 menuView\cf0  =[[\cf4 MenuView\cf0  \cf4 alloc\cf0 ]\cf4 init\cf0 ];\
+    \cf4 screenBounds\cf0  = [\cf4 UIScreen\cf0  \cf4 mainScreen\cf0 ].\cf4 bounds\cf0  ;\
+    \cf2 self\cf0 .\cf4 menuView\cf0 .\cf4 view\cf0 .\cf4 frame\cf0  = \cf4 CGRectMake\cf0 (0, \cf4 screenBounds\cf0 .\cf4 size\cf0 .\cf4 height\cf0 -50, \cf4 screenBounds\cf0 .\cf4 size\cf0 .\cf4 width\cf0 , \cf4 screenBounds\cf0 .\cf4 size\cf0 .\cf4 height\cf0 );\cf6 // 50 dk\cf0 \
+    \cf2 self\cf0 .\cf4 menuView\cf0 .\cf4 image4\cf0 .\cf4 image\cf0 =[\cf4 UIImage\cf0  \cf4 imageNamed\cf0 :\cf3 @"Selected_btn_orange.png"\cf0 ];\
+    [\cf2 self\cf0 .\cf4 view\cf0  \cf4 addSubview\cf0 :\cf2 self\cf0 .\cf4 menuView\cf0 .\cf4 view\cf0 ];\
+\
+ \}\
+//======================================================\
+\
+ \cf4 WhatsAppMessage\cf0  *whatsappMsg = [[\cf4 WhatsAppMessage\cf0  \cf4 alloc\cf0 ] \cf4 initWithMessage\cf0 :\cf3 @"abv"\cf0  \cf4 forABID\cf0 :\cf3 @""\cf0 ];\
+    \
+    \cf4 NSArray\cf0  *applicationActivities = @[[[\cf4 JBWhatsAppActivity\cf0  \cf4 alloc\cf0 ] \cf4 init\cf0 ]];\
+    \cf4 NSArray\cf0  *excludedActivities    = @[\cf4 UIActivityTypePrint\cf0 , \cf4 UIActivityTypePostToWeibo\cf0 , \cf4 UIActivityTypeMessage\cf0 ];\
+    \cf4 NSArray\cf0  *activityItems = @[\cf3 @"abv"\cf0 , whatsappMsg];\
+    \
+    \cf4 UIActivityViewController\cf0  *activityViewController = [[\cf4 UIActivityViewController\cf0  \cf4 alloc\cf0 ] \cf4 initWithActivityItems\cf0 :activityItems \cf4 applicationActivities\cf0 :applicationActivities];\
+    activityViewController.\cf4 excludedActivityTypes\cf0  = excludedActivities;\
+    \cf4 NSArray\cf0  *excludeActivities = @[\cf4 UIActivityTypeAirDrop\cf0 ,\
+                                   \cf4 UIActivityTypePrint\cf0 ,\
+                                   \cf4 UIActivityTypeAssignToContact\cf0 ,\
+                                   \cf4 UIActivityTypeSaveToCameraRoll\cf0 ,\
+                                   \cf4 UIActivityTypeAddToReadingList\cf0 ,\
+                                   \cf4 UIActivityTypePostToFlickr\cf0 ,\
+                                   \cf4 UIActivityTypePostToVimeo\cf0 ];\
+    \
+    activityViewController.\cf4 excludedActivityTypes\cf0  = excludeActivities;\
+    [\cf2 self\cf0  \cf4 presentViewController\cf0 :activityViewController \cf4 animated\cf0 :\cf2 YES\cf0  \cf4 completion\cf0 :^\{\}];\
+\
+\
+//=======================================================\
+\
+        NSData *imageData = UIImageJPEGRepresentation(thumbleImage.image, 0.25);\
+        [Base64 initialize];\
+        NSString *imageString = [NSString stringWithFormat:@"%@",[Base64 encode:imageData]];\
+        \
+        NSLog(@"length %lu",(unsigned long)[imageString length]) ;\
+\
+\
+\
+-(IBAction)cameraBtnPressed:(id)sender\{\
+\
+    NSString *other1 = @"Take a photo";\
+    NSString *other2 = @"Choose Existing Photo";\
+    \
+    NSString *cancelTitle = @"Cancle";\
+    UIActionSheet *actionSheet = [[UIActionSheet alloc]\
+                                  initWithTitle:nil\
+                                  delegate:self\
+                                  cancelButtonTitle:cancelTitle\
+                                  destructiveButtonTitle:nil\
+                                  otherButtonTitles:other1, other2, nil];\
+    [actionSheet showInView:self.view];\
+\}\
+\
+\
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex ; \{\
+    if(buttonIndex==0)\
+    \{\
+        UIImagePickerController *imagePickerController = [[UIImagePickerController alloc]init];\
+        imagePickerController = [[UIImagePickerController alloc] init];\
+        imagePickerController.delegate = self;\
+        imagePickerController.sourceType =  UIImagePickerControllerSourceTypeCamera;\
+        [self presentViewController:imagePickerController animated:YES completion:nil];\
+    \}else if(buttonIndex==1)\
+    \{\
+        UIImagePickerController *imagePickerController = [[UIImagePickerController alloc]init];\
+        imagePickerController = [[UIImagePickerController alloc] init];\
+        imagePickerController.delegate = self;\
+        imagePickerController.sourceType =  UIImagePickerControllerSourceTypePhotoLibrary;\
+        imagePickerController.sourceType= UIImagePickerControllerSourceTypePhotoLibrary;\
+        [self presentViewController:imagePickerController animated:YES completion:nil];\
+    \}\
+\}\
+\
+\
+-(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info\
+\{\
+    if(picked  == 1)\
+    \{\
+        picked=0;\
+    \}\
+    else\
+    \{\
+        thumbleImage.image = nil;\
+        UIImage *image = info[UIImagePickerControllerEditedImage];\
+        if(!image)image=info[UIImagePickerControllerOriginalImage];\
+        thumbleImage.image  = [self rotateUIImage:image];\
+        NSLog(@"Scaling photo");\
+        [self dismissViewControllerAnimated:YES completion:nil];\
+        picked=1;\
+    \}\
+    \
+\}\
+\
+\
+\
+-(UIImage*)rotateUIImage:(UIImage*)src \{\
+    \
+    // No-op if the orientation is already correct\
+    if (src.imageOrientation == UIImageOrientationUp) return src ;\
+    \
+    // We need to calculate the proper transformation to make the image upright.\
+    // We do it in 2 steps: Rotate if Left/Right/Down, and then flip if Mirrored.\
+    CGAffineTransform transform = CGAffineTransformIdentity;\
+    \
+    switch (src.imageOrientation) \{\
+        case UIImageOrientationDown:\
+        case UIImageOrientationDownMirrored:\
+            transform = CGAffineTransformTranslate(transform, src.size.width, src.size.height);\
+            transform = CGAffineTransformRotate(transform, M_PI);\
+            break;\
+            \
+        case UIImageOrientationLeft:\
+        case UIImageOrientationLeftMirrored:\
+            transform = CGAffineTransformTranslate(transform, src.size.width, 0);\
+            transform = CGAffineTransformRotate(transform, M_PI_2);\
+            break;\
+            \
+        case UIImageOrientationRight:\
+        case UIImageOrientationRightMirrored:\
+            transform = CGAffineTransformTranslate(transform, 0, src.size.height);\
+            transform = CGAffineTransformRotate(transform, -M_PI_2);\
+            break;\
+        case UIImageOrientationUp:\
+        case UIImageOrientationUpMirrored:\
+            break;\
+    \}\
+    \
+    switch (src.imageOrientation) \{\
+        case UIImageOrientationUpMirrored:\
+        case UIImageOrientationDownMirrored:\
+            transform = CGAffineTransformTranslate(transform, src.size.width, 0);\
+            transform = CGAffineTransformScale(transform, -1, 1);\
+            break;\
+            \
+        case UIImageOrientationLeftMirrored:\
+        case UIImageOrientationRightMirrored:\
+            transform = CGAffineTransformTranslate(transform, src.size.height, 0);\
+            transform = CGAffineTransformScale(transform, -1, 1);\
+            break;\
+        case UIImageOrientationUp:\
+        case UIImageOrientationDown:\
+        case UIImageOrientationLeft:\
+        case UIImageOrientationRight:\
+            break;\
+    \}\
+    \
+    // Now we draw the underlying CGImage into a new context, applying the transform\
+    // calculated above.\
+    CGContextRef ctx = CGBitmapContextCreate(NULL, src.size.width, src.size.height,\
+                                             CGImageGetBitsPerComponent(src.CGImage), 0,\
+                                             CGImageGetColorSpace(src.CGImage),\
+                                             CGImageGetBitmapInfo(src.CGImage));\
+    CGContextConcatCTM(ctx, transform);\
+    switch (src.imageOrientation) \{\
+        case UIImageOrientationLeft:\
+        case UIImageOrientationLeftMirrored:\
+        case UIImageOrientationRight:\
+        case UIImageOrientationRightMirrored:\
+            // Grr...\
+            CGContextDrawImage(ctx, CGRectMake(0,0,src.size.height,src.size.width), src.CGImage);\
+            break;\
+            \
+        default:\
+            CGContextDrawImage(ctx, CGRectMake(0,0,src.size.width,src.size.height), src.CGImage);\
+            break;\
+    \}\
+    \
+    // And now we just create a new UIImage from the drawing context\
+    CGImageRef cgimg = CGBitmapContextCreateImage(ctx);\
+    UIImage *img = [UIImage imageWithCGImage:cgimg];\
+    CGContextRelease(ctx);\
+    CGImageRelease(cgimg);\
+    return img;\
+\}\
+\
+\
+\
+-(void)imagePickerControllerDidCancel:(UIImagePickerController *)picker\
+\{\
+   \
+    [picker dismissViewControllerAnimated:YES completion:nil];\
+\}\
+\
+=========================================================\
+\
+\
+\
+}

@@ -1,0 +1,481 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue255;\red163\green21\blue21;\red43\green131\blue159;
+\red0\green128\blue0;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab674
+\pard\tx674\pardeftab674\pardirnatural
+
+\f0\fs28 \cf0 \CocoaLigature0  \
+\cf2 #import \cf3 <sqlite3.h>\
+\
+\cf0 \
+-(\cf4 NSString\cf0  *) getDbFilePath\
+\{\
+    \cf4 NSString\cf0  * docsPath= \cf4 NSSearchPathForDirectoriesInDomains\cf0  (\cf4 NSDocumentDirectory\cf0 , \cf4 NSUserDomainMask\cf0 , \cf2 YES\cf0 )[0];\
+    \cf4 path\cf0  =[docsPath \cf4 stringByAppendingPathComponent\cf0 :\cf3 @"MessageDb.db"\cf0 ];\
+    \
+    \cf2 return\cf0  [docsPath \cf4 stringByAppendingPathComponent\cf0 :\cf3 @"MessageDb.db"\cf0 ];\
+    \
+\}\
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+\cf2 if\cf0 (![[\cf4 NSFileManager\cf0  \cf4 defaultManager\cf0 ] \cf4 fileExistsAtPath\cf0 :[\cf2 self\cf0  \cf4 getDbFilePath\cf0 ]]) \cf5 //if the file does not exist\cf0 \
+    \{\
+        [\cf2 self\cf0  \cf4 createTable\cf0 :[\cf2 self\cf0  \cf4 getDbFilePath\cf0 ]];\
+    \}\
+    \
+    \cf4 NSLog\cf0 (\cf3 @"name:%@"\cf0 ,[[userInfo \cf4 valueForKey\cf0 :\cf3 @"aps"\cf0 ]\cf4 valueForKey\cf0 :\cf3 @"name"\cf0 ]);\
+    \cf4 NSLog\cf0 (\cf3 @"Date:%@"\cf0 ,[[userInfo \cf4 valueForKey\cf0 :\cf3 @"aps"\cf0 ]\cf4 valueForKey\cf0 :\cf3 @"Date"\cf0 ]);\
+    \cf4 NSLog\cf0 (\cf3 @"Message:%@"\cf0 ,[[userInfo \cf4 valueForKey\cf0 :\cf3 @"aps"\cf0 ]\cf4 valueForKey\cf0 :\cf3 @"alert"\cf0 ]);\
+    \
+    \cf4 NSString\cf0  *name = [[userInfo \cf4 valueForKey\cf0 :\cf3 @"aps"\cf0 ]\cf4 valueForKey\cf0 :\cf3 @"name"\cf0 ];\
+    \cf4 NSString\cf0  *date = [[userInfo \cf4 valueForKey\cf0 :\cf3 @"aps"\cf0 ]\cf4 valueForKey\cf0 :\cf3 @"Date"\cf0 ];\
+    \cf4 NSString\cf0  *message = [[userInfo \cf4 valueForKey\cf0 :\cf3 @"aps"\cf0 ]\cf4 valueForKey\cf0 :\cf3 @"alert"\cf0 ];\
+    \
+    \cf2 if\cf0 (name.\cf4 length\cf0  ==0 || message.\cf4 length\cf0  ==0 || date.\cf4 length\cf0  == 0 )\
+    \{\
+        [\cf2 self\cf0  \cf4 showMessage\cf0 :\cf3 @"ERROR"\cf0  \cf4 withMessage\cf0 :\cf3 @"Enter Valid Name/Age/Marks"\cf0 ];\
+    \}\
+    \cf2 else\cf0 \
+    \{\
+        \cf2 int\cf0  rc= [\cf2 self\cf0  \cf4 insert\cf0 :[\cf2 self\cf0  \cf4 getDbFilePath\cf0 ] \cf4 withName\cf0 :name \cf4 message\cf0 :message \cf4 date\cf0 :date];\
+        \cf2 if\cf0 (rc != \cf2 SQLITE_OK\cf0 )\
+        \{\
+            \cf5 //[self showMessage:@"ERROR" withMessage:@"Failed to insert record"];\cf0 \
+        \}\
+        \cf2 else\cf0 \
+        \{\
+            \cf5 //  [self showMessage:@"SUCCESS" withMessage:@"Record is added"];\cf0 \
+            \
+        \}\
+    \}\
+    \
+    [\cf2 self\cf0  \cf4 CheckData\cf0 ];\
+\
+\
+========================================================\
+\
+-(\cf2 int\cf0 ) createTable:(\cf4 NSString\cf0 *) filePath\
+\{\
+    \cf4 sqlite3\cf0 * db = \cf2 NULL\cf0 ;\
+    \cf2 int\cf0  rc=0;\
+    \
+    \
+    \cf5 // sqlite3* db = NULL;\cf0 \
+    \cf5 // int rc=0;\cf0 \
+    \
+    rc = \cf4 sqlite3_open_v2\cf0 ([filePath \cf4 cStringUsingEncoding\cf0 :\cf4 NSUTF8StringEncoding\cf0 ], &db, \cf2 SQLITE_OPEN_READWRITE\cf0  | \cf2 SQLITE_OPEN_CREATE\cf0 , \cf2 NULL\cf0 );\
+    \cf2 if\cf0  (\cf2 SQLITE_OK\cf0  != rc)\
+    \{\
+        \cf4 sqlite3_close\cf0 (db);\
+        \cf4 NSLog\cf0 (\cf3 @"Failed to open db connection"\cf0 );\
+    \}\
+    \cf2 else\cf0 \
+    \{\
+        \cf2 char\cf0  * query =\cf3 "CREATE TABLE IF NOT EXISTS MessageStore ( id INTEGER PRIMARY KEY AUTOINCREMENT, name  TEXT, message TEXT, date TEXT )"\cf0 ;\
+        \cf2 char\cf0  * errMsg;\
+        rc = \cf4 sqlite3_exec\cf0 (db, query,\cf2 NULL\cf0 ,\cf2 NULL\cf0 ,&errMsg);\
+        \
+        \cf2 if\cf0 (\cf2 SQLITE_OK\cf0  != rc)\
+        \{\
+            \cf4 NSLog\cf0 (\cf3 @"Failed to create table rc:%d, msg=%s"\cf0 ,rc,errMsg);\
+        \}\
+        \
+        \cf4 sqlite3_close\cf0 (db);\
+    \}\
+    \
+    \cf2 return\cf0  rc;\
+\}\
+\
+\
+\
+-(\cf2 void\cf0 )CheckData\
+\{\
+    \
+    \cf4 sqlite3\cf0 * db = \cf2 NULL\cf0 ;\
+    \cf4 sqlite3_stmt\cf0 * stmt =\cf2 NULL\cf0 ;\
+    \cf2 int\cf0  rc=0;\
+    [\cf2 self\cf0  \cf4 getDbFilePath\cf0 ];\
+    rc = \cf4 sqlite3_open_v2\cf0 ([\cf4 path\cf0  \cf4 UTF8String\cf0 ], &db, \cf2 SQLITE_OPEN_READONLY\cf0  , \cf2 NULL\cf0 );\
+    \cf2 if\cf0  (\cf2 SQLITE_OK\cf0  != rc)\
+    \{\
+        \cf4 sqlite3_close\cf0 (db);\
+        \cf4 NSLog\cf0 (\cf3 @"Failed to open db connection"\cf0 );\
+    \}\
+    \cf2 else\cf0 \
+    \{\
+        \cf4 NSMutableArray\cf0  *messageStoreArray= [[\cf4 NSMutableArray\cf0  \cf4 alloc\cf0 ]\cf4 init\cf0 ];\
+        \
+        \cf4 NSString\cf0   * query = \cf3 @"SELECT * from MessageStore"\cf0 ;\
+        \
+        rc =\cf4 sqlite3_prepare_v2\cf0 (db, [query \cf4 UTF8String\cf0 ], -1, &stmt, \cf2 NULL\cf0 );\
+        \cf2 if\cf0 (rc == \cf2 SQLITE_OK\cf0 )\
+        \{\
+            \cf2 while\cf0  (\cf4 sqlite3_step\cf0 (stmt) == \cf2 SQLITE_ROW\cf0 ) \cf5 //get each row in loop\cf0 \
+            \{\
+                \
+                \cf4 NSString\cf0  * name =[\cf4 NSString\cf0  \cf4 stringWithUTF8String\cf0 :(\cf2 const\cf0  \cf2 char\cf0  *)\cf4 sqlite3_column_text\cf0 (stmt, 1)];\
+                \cf4 NSString\cf0  * message =   [\cf4 NSString\cf0  \cf4 stringWithUTF8String\cf0 :(\cf2 const\cf0  \cf2 char\cf0  *)\cf4 sqlite3_column_text\cf0 (stmt, 2)];\
+                \cf4 NSString\cf0  *date =  [\cf4 NSString\cf0  \cf4 stringWithUTF8String\cf0 :(\cf2 const\cf0  \cf2 char\cf0  *)\cf4 sqlite3_column_text\cf0 (stmt, 3)];\
+                \
+                \cf4 NSDictionary\cf0  *AllRecord =[\cf4 NSDictionary\cf0  \cf4 dictionaryWithObjectsAndKeys\cf0 :name,\cf3 @"name"\cf0 ,message,\cf3 @"message"\cf0 ,date, \cf3 @"date"\cf0 ,\cf2 nil\cf0 ];\
+                \cf4 NSLog\cf0 (\cf3 @"%@"\cf0 ,AllRecord);\
+                [messageStoreArray \cf4 addObject\cf0 :AllRecord];\
+                \cf4 NSLog\cf0 (\cf3 @"name: %@, message=%@ , date =%@ "\cf0 ,name,message,date);\
+            \}\
+            \
+            \
+            \cf4 NSLog\cf0 (\cf3 @"Done  %@"\cf0 ,messageStoreArray);\
+            \cf4 sqlite3_finalize\cf0 (stmt);\
+        \}\
+        \cf2 else\cf0 \
+        \{\
+            \cf4 NSLog\cf0 (\cf3 @"Failed to prepare statement with rc:%d"\cf0 ,rc);\
+        \}\
+        \cf4 sqlite3_close\cf0 (db);\
+    \}\
+    \
+\}\
+\
+\
+\
+-(\cf2 int\cf0 ) insert:(\cf4 NSString\cf0  *)filePath withName:(\cf4 NSString\cf0  *)name message:(\cf4 NSString\cf0  *)message date:(\cf4 NSString\cf0  *)date\
+\{\
+    \
+    \
+    \cf4 sqlite3\cf0 * db = \cf2 NULL\cf0 ;\
+    \cf2 int\cf0  rc=0;\
+    rc = \cf4 sqlite3_open_v2\cf0 ([filePath \cf4 cStringUsingEncoding\cf0 :\cf4 NSUTF8StringEncoding\cf0 ], &db, \cf2 SQLITE_OPEN_READWRITE\cf0  , \cf2 NULL\cf0 );\
+    \cf2 if\cf0  (\cf2 SQLITE_OK\cf0  != rc)\
+    \{\
+        \cf4 sqlite3_close\cf0 (db);\
+        \cf4 NSLog\cf0 (\cf3 @"Failed to open db connection"\cf0 );\
+    \}\
+    \cf2 else\cf0 \
+    \{\
+        \cf4 NSString\cf0  * query  = [\cf4 NSString\cf0 \
+                             \cf4 stringWithFormat\cf0 :\cf3 @"INSERT INTO MessageStore (name,message,date)  VALUES (\\"%@\\",\\"%@\\",\\"%@\\")"\cf0 ,name,message,date];\
+        \
+        \cf2 char\cf0  * errMsg;\
+        rc = \cf4 sqlite3_exec\cf0 (db, [query \cf4 UTF8String\cf0 ] ,\cf2 NULL\cf0 ,\cf2 NULL\cf0 ,&errMsg);\
+        \cf2 if\cf0 (\cf2 SQLITE_OK\cf0  != rc)\
+        \{\
+            \cf4 NSLog\cf0 (\cf3 @"Failed to insert record  rc:%d, msg=%s"\cf0 ,rc,errMsg);\
+        \}\
+        \cf4 sqlite3_close\cf0 (db);\
+    \}\
+    \cf2 return\cf0  rc;\
+\}\
+\
+-(\cf2 int\cf0 ) insertWithoutExec:(\cf4 NSString\cf0  *)filePath withName:(\cf4 NSString\cf0  *)name message:(\cf4 NSString\cf0  *)message date:(\cf4 NSString\cf0  *)date\
+\{\
+    \
+    \cf4 sqlite3\cf0 * db = \cf2 NULL\cf0 ;\
+    \cf4 sqlite3_stmt\cf0 * stmt =\cf2 NULL\cf0 ;\
+    \
+    \cf2 int\cf0  rc=0;\
+    rc = \cf4 sqlite3_open_v2\cf0 ([filePath \cf4 cStringUsingEncoding\cf0 :\cf4 NSUTF8StringEncoding\cf0 ], &db, \cf2 SQLITE_OPEN_READWRITE\cf0  , \cf2 NULL\cf0 );\
+    \cf2 if\cf0  (\cf2 SQLITE_OK\cf0  != rc)\
+    \{\
+        \cf4 sqlite3_close\cf0 (db);\
+        \cf4 NSLog\cf0 (\cf3 @"Failed to open db connection"\cf0 );\
+    \}\
+    \cf2 else\cf0 \
+    \{\
+        \cf4 NSString\cf0  * query  = [\cf4 NSString\cf0 \
+                             \cf4 stringWithFormat\cf0 :\cf3 @"INSERT INTO MessageStore (name,message,date)  VALUES (\\"%@\\",\\"%@\\",\\"%@\\")"\cf0 ,name,message,date];\
+        \
+        \
+        rc =\cf4 sqlite3_prepare_v2\cf0 (db, [query \cf4 UTF8String\cf0 ], -1, &stmt, \cf2 NULL\cf0 );\
+        \cf2 if\cf0 (rc == \cf2 SQLITE_OK\cf0 )\
+        \{\
+            rc =\cf4 sqlite3_step\cf0 (stmt);\
+            \cf2 if\cf0 (rc == \cf2 SQLITE_DONE\cf0 ) \cf5 //success\cf0 \
+            \{\
+                rc = \cf2 SQLITE_OK\cf0 ;\
+            \}\
+            \
+            \cf4 sqlite3_finalize\cf0 (stmt);\
+        \}\
+        \
+        \cf4 sqlite3_close\cf0 (db);\
+    \}\
+    \cf2 return\cf0  rc;\
+\}\
+\
+\
+\
+-(\cf2 void\cf0 ) showMessage:(\cf4 NSString\cf0 *)title withMessage:(\cf4 NSString\cf0 *)message\
+\{\
+    [[[\cf4 UIAlertView\cf0  \cf4 alloc\cf0 ] \cf4 initWithTitle\cf0 :title \cf4 message\cf0 :message \cf4 delegate\cf0 :\cf2 nil\cf0  \cf4 cancelButtonTitle\cf0 :\cf3 @"Cancel"\cf0  \cf4 otherButtonTitles\cf0 : \cf2 nil\cf0 ] \cf4 show\cf0 ];\
+    \
+\}\
+\
+================================================\
+\
+\
+\
+-(\cf4 NSString\cf0  *) getDbFilePath\
+\{\
+    \cf4 NSString\cf0  * docsPath= \cf4 NSSearchPathForDirectoriesInDomains\cf0  (\cf4 NSDocumentDirectory\cf0 , \cf4 NSUserDomainMask\cf0 , \cf2 YES\cf0 )[0];\
+    \cf4 path\cf0  =[docsPath \cf4 stringByAppendingPathComponent\cf0 :\cf3 @"MessageDb.db"\cf0 ];\
+    \
+    \cf2 return\cf0  [docsPath \cf4 stringByAppendingPathComponent\cf0 :\cf3 @"MessageDb.db"\cf0 ];\
+    \
+\}\
+\
+\
+\
+- (\cf2 void\cf0 )viewDidLoad \{\
+    [\cf2 super\cf0  \cf4 viewDidLoad\cf0 ];\
+    \cf5 // Do any additional setup after loading the view.\cf0 \
+    \cf4 AppDel\cf0  = (\cf4 AppDelegate\cf0  *) [[\cf4 UIApplication\cf0  \cf4 sharedApplication\cf0 ]\cf4 delegate\cf0 ];\
+     \cf4 screenBounds\cf0  = [\cf4 UIScreen\cf0  \cf4 mainScreen\cf0 ].\cf4 bounds\cf0  ;\
+     \cf5 //msgarr = [NSMutableArray arrayWithObjects:@"Are you ready?  I want to make my dream. .",@"Party Time. I want to make my dream.",@"Good Morning", nil];\cf0 \
+   \cf5 // datearr = [NSArray arrayWithObjects:@"january 26,2016 at 15:00",@"Fabruary 1,2016 at 23:00",@"Fabruary 25,2016 at 09:00", nil];\cf0 \
+  \cf5 //  b1arr = [NSArray arrayWithObjects:@"0",@"0",@"0", nil];\cf0 \
+   \cf5 // b2arr = [NSArray arrayWithObjects:@"1",@"1",@"1", nil];\cf0 \
+   \
+    [[\cf4 NSNotificationCenter\cf0  \cf4 defaultCenter\cf0 ] \cf4 addObserver\cf0 :\cf2 self\cf0  \cf4 selector\cf0 :\cf2 @selector\cf0 (RefreshChatTableOFPUSHno:) \cf4 name\cf0 :\cf3 @"RefreshChatTableOFPUSHnoti"\cf0  \cf4 object\cf0 :\cf2 nil\cf0 ];\
+    \
+    \cf2 if\cf0 (![[\cf4 NSFileManager\cf0  \cf4 defaultManager\cf0 ] \cf4 fileExistsAtPath\cf0 :[\cf2 self\cf0  \cf4 getDbFilePath\cf0 ]]) \cf5 //if the file does not exist\cf0 \
+    \{\
+        [\cf2 self\cf0  \cf4 createTable\cf0 :[\cf2 self\cf0  \cf4 getDbFilePath\cf0 ]];\
+    \}\
+    \
+    \cf2 if\cf0  (\cf4 AppDel\cf0 .\cf4 pushNotificationArr\cf0 )\
+    \{\
+        [\cf2 self\cf0  \cf4 CheckData\cf0 ];\
+        \cf5 //[self TableView_Reload_Bottom];\cf0 \
+    \}\
+    \
+    [[\cf4 UIApplication\cf0  \cf4 sharedApplication\cf0 ] \cf4 setApplicationIconBadgeNumber\cf0 : 0];\
+\}\
+\
+\
+\
+-(\cf2 int\cf0 ) createTable:(\cf4 NSString\cf0 *) filePath\
+\{\
+    \cf4 sqlite3\cf0 * db = \cf2 NULL\cf0 ;\
+    \cf2 int\cf0  rc=0;\
+    \
+    \
+    \cf5 // sqlite3* db = NULL;\cf0 \
+    \cf5 // int rc=0;\cf0 \
+    \
+    rc = \cf4 sqlite3_open_v2\cf0 ([filePath \cf4 cStringUsingEncoding\cf0 :\cf4 NSUTF8StringEncoding\cf0 ], &db, \cf2 SQLITE_OPEN_READWRITE\cf0  | \cf2 SQLITE_OPEN_CREATE\cf0 , \cf2 NULL\cf0 );\
+    \cf2 if\cf0  (\cf2 SQLITE_OK\cf0  != rc)\
+    \{\
+        \cf4 sqlite3_close\cf0 (db);\
+        \cf4 NSLog\cf0 (\cf3 @"Failed to open db connection"\cf0 );\
+    \}\
+    \cf2 else\cf0 \
+    \{\
+        \cf2 char\cf0  * query =\cf3 "CREATE TABLE IF NOT EXISTS MessageStore ( id INTEGER PRIMARY KEY AUTOINCREMENT, name  TEXT, message TEXT, date TEXT )"\cf0 ;\
+        \cf2 char\cf0  * errMsg;\
+        rc = \cf4 sqlite3_exec\cf0 (db, query,\cf2 NULL\cf0 ,\cf2 NULL\cf0 ,&errMsg);\
+        \
+        \cf2 if\cf0 (\cf2 SQLITE_OK\cf0  != rc)\
+        \{\
+            \cf4 NSLog\cf0 (\cf3 @"Failed to create table rc:%d, msg=%s"\cf0 ,rc,errMsg);\
+        \}\
+        \
+        \cf4 sqlite3_close\cf0 (db);\
+    \}\
+    \
+    \cf2 return\cf0  rc;\
+\}\
+\
+\
+\
+-(\cf2 void\cf0 )CheckData\
+\{\
+    \
+    \cf4 sqlite3\cf0 * db = \cf2 NULL\cf0 ;\
+    \cf4 sqlite3_stmt\cf0 * stmt =\cf2 NULL\cf0 ;\
+    \cf2 int\cf0  rc=0;\
+    [\cf2 self\cf0  \cf4 getDbFilePath\cf0 ];\
+    rc = \cf4 sqlite3_open_v2\cf0 ([\cf4 path\cf0  \cf4 UTF8String\cf0 ], &db, \cf2 SQLITE_OPEN_READONLY\cf0  , \cf2 NULL\cf0 );\
+    \cf2 if\cf0  (\cf2 SQLITE_OK\cf0  != rc)\
+    \{\
+        \cf4 sqlite3_close\cf0 (db);\
+        \cf4 NSLog\cf0 (\cf3 @"Failed to open db connection"\cf0 );\
+    \}\
+    \cf2 else\cf0 \
+    \{\
+        \cf4 messageArr\cf0  = [[\cf4 NSMutableArray\cf0  \cf4 alloc\cf0 ]\cf4 init\cf0 ];\
+        \cf4 dateArr\cf0  = [[\cf4 NSMutableArray\cf0  \cf4 alloc\cf0 ]\cf4 init\cf0 ];\
+        \cf4 nameArr\cf0  =[[\cf4 NSMutableArray\cf0  \cf4 alloc\cf0 ]\cf4 init\cf0 ];\
+        \cf4 NSString\cf0   * query = \cf3 @"SELECT * from MessageStore order by id DESC"\cf0 ;\
+        \
+        rc =\cf4 sqlite3_prepare_v2\cf0 (db, [query \cf4 UTF8String\cf0 ], -1, &stmt, \cf2 NULL\cf0 );\
+        \cf2 if\cf0 (rc == \cf2 SQLITE_OK\cf0 )\
+        \{\
+            \cf2 while\cf0  (\cf4 sqlite3_step\cf0 (stmt) == \cf2 SQLITE_ROW\cf0 ) \cf5 //get each row in loop\cf0 \
+            \{\
+                \
+                \cf4 NSString\cf0  * name =[\cf4 NSString\cf0  \cf4 stringWithUTF8String\cf0 :(\cf2 const\cf0  \cf2 char\cf0  *)\cf4 sqlite3_column_text\cf0 (stmt, 1)];\
+                \cf4 NSString\cf0  * message =   [\cf4 NSString\cf0  \cf4 stringWithUTF8String\cf0 :(\cf2 const\cf0  \cf2 char\cf0  *)\cf4 sqlite3_column_text\cf0 (stmt, 2)];\
+                \cf4 NSString\cf0  *date =  [\cf4 NSString\cf0  \cf4 stringWithUTF8String\cf0 :(\cf2 const\cf0  \cf2 char\cf0  *)\cf4 sqlite3_column_text\cf0 (stmt, 3)];\
+                \
+                \cf5 //[NSDictionary dictionaryWithObjectsAndKeys:name,@"name",message,@"message",date, @"date",nil];\cf0 \
+                [\cf4 messageArr\cf0  \cf4 addObject\cf0 :message];\
+                [\cf4 nameArr\cf0  \cf4 addObject\cf0 :name];\
+                [\cf4 dateArr\cf0  \cf4 addObject\cf0 :date];\
+                \
+                \
+                \cf4 NSLog\cf0 (\cf3 @"name: %@, message=%@ , date =%@ "\cf0 ,name,message,date);\
+            \}\
+            \cf4 NSLog\cf0 (\cf3 @"Done"\cf0 );\
+            [\cf4 hud\cf0  \cf4 hide\cf0 :\cf2 YES\cf0 ];\
+            [\cf4 TableNotification\cf0  \cf4 reloadData\cf0 ];\
+            \cf4 sqlite3_finalize\cf0 (stmt);\
+        \}\
+        \cf2 else\cf0 \
+        \{\
+            \cf4 NSLog\cf0 (\cf3 @"Failed to prepare statement with rc:%d"\cf0 ,rc);\
+        \}\
+        \cf4 sqlite3_close\cf0 (db);\
+    \}\
+    \
+\}\
+\
+\
+-(\cf2 void\cf0 )localRecordInsert\{\
+    \cf4 sqlite3_stmt\cf0  *statement;\
+    \cf2 const\cf0  \cf2 char\cf0  *dbpath = [\cf4 _databasePath\cf0  \cf4 UTF8String\cf0 ];\
+    \
+    \cf2 if\cf0  (\cf4 sqlite3_open\cf0 (dbpath, &\cf4 _contactDB\cf0 ) == \cf2 SQLITE_OK\cf0 )\
+    \{\
+        \cf4 NSString\cf0  *insertSQL = [\cf4 NSString\cf0  \cf4 stringWithFormat\cf0 :\cf3 @"INSERT INTO Tracking (NAME, EARTAG, TYPE, GENDER, BIRTHDATE, BIRTHWEIGHT, ACQUISITIONDATE, ACQUISITIONWEIGHT, ACQUISITIONCOSTS, IMAGESTATUS, KGLBS, WEIGHTDATE1, WEIGHT1, ADWEIGHT1, WEIGHTDATE2, WEIGHT2, ADWEIGHT2, WEIGHTDATE3, WEIGHT3, ADWEIGHT3, TOTALWEIGHTGAIN, TOTALWEIGHT, FEEDCOSTS, VACCINATIONCOSTS, VETERINARYCOSTS, HARVESTCOST, MEATCUTTINGCOUST, COSTARA, COSTOFMEATCUTTING, COSTTOPROCESSANIMAL, TOTALCOSTOFANIMAL, BREAKEVENPRICE, DAYSFROMACQUISITION, DATAUPDATE, LIVEID, PDFWEBURL) VALUES (\\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\", \\"%@\\")"\cf0 ,\cf4 nameTF\cf0 .\cf4 text\cf0 ,\cf4 earTagTf\cf0 .\cf4 text\cf0 ,\cf4 animalTypeTextF\cf0 .\cf4 text\cf0 ,\cf4 genderTF\cf0 .\cf4 text\cf0 ,\cf4 birthdateTF\cf0 .\cf4 text\cf0 ,\cf4 birthWeightTF\cf0 .\cf4 text\cf0 ,\cf4 acquisitionDateTF\cf0 .\cf4 text\cf0 ,\cf4 acquisitionWeightTF\cf0 .\cf4 text\cf0 ,\cf4 acquisitionCostsTF\cf0 .\cf4 text\cf0 ,\cf4 cameraImageSaveStr\cf0 ,\cf4 kgLbsBwLab\cf0 .\cf4 text\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf3 @""\cf0 ,\cf4 liveIDStr\cf0 ,\cf4 pdfurlStr\cf0 ];\
+        \
+        \cf2 const\cf0  \cf2 char\cf0  *insert_stmt = [insertSQL \cf4 UTF8String\cf0 ];\
+        \cf4 sqlite3_prepare_v2\cf0 (\cf4 _contactDB\cf0 , insert_stmt, -1, &statement, \cf2 NULL\cf0 );\
+        \cf2 if\cf0  (\cf4 sqlite3_step\cf0 (statement) == \cf2 SQLITE_DONE\cf0 )\
+        \{\
+            \cf4 NSLog\cf0 (\cf3 @"Contact added"\cf0 );\
+        \} \cf2 else\cf0  \{\
+            \cf4 NSLog\cf0 (\cf3 @"Failed to add contact"\cf0 );\
+        \}\
+        \cf4 sqlite3_finalize\cf0 (statement);\
+        \cf4 sqlite3_close\cf0 (\cf4 _contactDB\cf0 );\
+        \
+        \cf2 if\cf0  ([\cf4 cameraImageSaveStr\cf0  \cf4 isEqualToString\cf0 :\cf3 @"0"\cf0 ])\
+        \{\
+            \cf5 //ALERT_VIEW(@"",@"Please upload image")\cf0 \
+            [\cf2 self\cf0 .\cf4 navigationController\cf0  \cf4 popViewControllerAnimated\cf0 :\cf2 YES\cf0 ];\
+        \}\
+        \cf2 else\cf0 \
+        \{\
+            \cf5 //Get photo id form database\cf0 \
+            \cf2 const\cf0  \cf2 char\cf0  *dbpath = [\cf4 _databasePath\cf0  \cf4 UTF8String\cf0 ];\
+            \cf4 sqlite3_stmt\cf0     *statement;\
+            \cf2 int\cf0  imagefileName=0;\
+            \cf2 if\cf0  (\cf4 sqlite3_open\cf0 (dbpath, &\cf4 _contactDB\cf0 ) == \cf2 SQLITE_OK\cf0 )\
+            \{\
+                \cf4 NSString\cf0  *querySQL = [\cf4 NSString\cf0  \cf4 stringWithFormat\cf0 :\cf3 @"SELECT ID FROM Tracking WHERE ID=(SELECT MAX(ID) FROM Tracking)"\cf0 ];\
+                \
+                \cf2 const\cf0  \cf2 char\cf0  *query_stmt = [querySQL \cf4 UTF8String\cf0 ];\
+                \cf2 if\cf0  (\cf4 sqlite3_prepare_v2\cf0 (\cf4 _contactDB\cf0 , query_stmt, -1, &statement, \cf2 NULL\cf0 ) == \cf2 SQLITE_OK\cf0 )\
+                \{\
+                    \cf2 if\cf0  (\cf4 sqlite3_step\cf0 (statement) == \cf2 SQLITE_ROW\cf0 )\
+                    \{\
+                        \cf4 NSString\cf0  *addressField = [[\cf4 NSString\cf0  \cf4 alloc\cf0 ]\cf4 initWithUTF8String\cf0 :(\cf2 const\cf0  \cf2 char\cf0  *) \cf4 sqlite3_column_text\cf0 (statement, 0)];\
+                        imagefileName=[addressField \cf4 intValue\cf0 ];\
+                    \} \cf2 else\cf0  \{\
+                        \cf4 NSLog\cf0 (\cf3 @"Match not found"\cf0 );\
+                    \}\
+                    \cf4 sqlite3_finalize\cf0 (statement);\
+                \}\
+                \cf4 sqlite3_close\cf0 (\cf4 _contactDB\cf0 );\
+            \}\
+            \cf4 NSString\cf0  *docsDir;\
+            \cf4 NSArray\cf0  *dirPaths;\
+            dirPaths = \cf4 NSSearchPathForDirectoriesInDomains\cf0 (\cf4 NSDocumentDirectory\cf0 , \cf4 NSUserDomainMask\cf0 , \cf2 YES\cf0 );\
+            docsDir = dirPaths[0];\
+            \cf4 NSString\cf0  *filePath = [docsDir \cf4 stringByAppendingPathComponent\cf0 :[\cf4 NSString\cf0  \cf4 stringWithFormat\cf0 :\cf3 @"Tracking%d.png"\cf0 ,imagefileName]];\
+            \cf4 NSData\cf0  *pngData = \cf4 UIImagePNGRepresentation\cf0 (\cf2 self\cf0 .\cf4 portraitImageView\cf0 .\cf4 image\cf0 );\
+            [pngData \cf4 writeToFile\cf0 :filePath \cf4 atomically\cf0 :\cf2 YES\cf0 ];\
+            \
+            [\cf2 self\cf0 .\cf4 navigationController\cf0  \cf4 popViewControllerAnimated\cf0 :\cf2 YES\cf0 ];\
+        \}\
+    \}\
+\}\
+\
+-(\cf2 void\cf0 )localRecordEdit\
+\{\
+    \cf5 //Edit profile\cf0 \
+    \cf4 sqlite3_stmt\cf0  *statement;\
+    \cf2 const\cf0  \cf2 char\cf0  *dbpath = [\cf4 _databasePath\cf0  \cf4 UTF8String\cf0 ];\
+    \cf2 if\cf0  (\cf4 sqlite3_open\cf0 (dbpath, &\cf4 _contactDB\cf0 ) == \cf2 SQLITE_OK\cf0 )\
+    \{\
+        \cf4 NSString\cf0  *insertSQL = [\cf4 NSString\cf0  \cf4 stringWithFormat\cf0 :\cf3 @"UPDATE Tracking SET NAME=\\"%@\\", EARTAG=\\"%@\\", TYPE=\\"%@\\", GENDER=\\"%@\\", BIRTHDATE=\\"%@\\", BIRTHWEIGHT=\\"%@\\", ACQUISITIONDATE=\\"%@\\", ACQUISITIONWEIGHT=\\"%@\\", ACQUISITIONCOSTS=\\"%@\\", IMAGESTATUS=\\"%@\\", KGLBS=\\"%@\\", DATAUPDATE=\\"%@\\", PDFWEBURL=\\"%@\\" WHERE ID=\\"%d\\""\cf0 ,\cf4 nameTF\cf0 .\cf4 text\cf0 ,\cf4 earTagTf\cf0 .\cf4 text\cf0 ,\cf4 animalTypeTextF\cf0 .\cf4 text\cf0 ,\cf4 genderTF\cf0 .\cf4 text\cf0 ,\cf4 birthdateTF\cf0 .\cf4 text\cf0 ,\cf4 birthWeightTF\cf0 .\cf4 text\cf0 ,\cf4 acquisitionDateTF\cf0 .\cf4 text\cf0 ,\cf4 acquisitionWeightTF\cf0 .\cf4 text\cf0 ,\cf4 acquisitionCostsTF\cf0 .\cf4 text\cf0 ,\cf4 cameraImageSaveStr\cf0 ,\cf4 kgLbsBwLab\cf0 .\cf4 text\cf0 ,\cf3 @"1"\cf0 ,\cf4 pdfurlStr\cf0 ,[\cf4 app\cf0 .\cf4 trackingIdStr\cf0  \cf4 intValue\cf0 ]];\
+        \
+        \cf2 const\cf0  \cf2 char\cf0  *insert_stmt = [insertSQL \cf4 UTF8String\cf0 ];\
+        \cf4 sqlite3_prepare_v2\cf0 (\cf4 _contactDB\cf0 , insert_stmt, -1, &statement, \cf2 NULL\cf0 );\
+        \cf2 if\cf0  (\cf4 sqlite3_step\cf0 (statement) == \cf2 SQLITE_DONE\cf0 )\
+        \{\
+            \cf4 NSLog\cf0 (\cf3 @"Contact added"\cf0 );\
+        \} \cf2 else\cf0  \{\
+            \cf4 NSLog\cf0 (\cf3 @"Failed to add contact"\cf0 );\
+        \}\
+        \cf4 sqlite3_finalize\cf0 (statement);\
+        \cf4 sqlite3_close\cf0 (\cf4 _contactDB\cf0 );\
+        \
+        \cf2 if\cf0  ([\cf4 cameraImageSaveStr\cf0  \cf4 isEqualToString\cf0 :\cf3 @"0"\cf0 ])\
+        \{\
+            \cf5 //ALERT_VIEW(@"",@"Please upload image")\cf0 \
+            [\cf2 self\cf0 .\cf4 navigationController\cf0  \cf4 popViewControllerAnimated\cf0 :\cf2 YES\cf0 ];\
+        \}\
+        \cf2 else\cf0 \
+        \{\
+            \cf5 //Update image name form database\cf0 \
+            \cf4 NSString\cf0  *docsDir;\
+            \cf4 NSArray\cf0  *dirPaths;\
+            dirPaths = \cf4 NSSearchPathForDirectoriesInDomains\cf0 (\cf4 NSDocumentDirectory\cf0 , \cf4 NSUserDomainMask\cf0 , \cf2 YES\cf0 );\
+            docsDir = dirPaths[0];\
+            \cf4 NSString\cf0  *filePath = [docsDir \cf4 stringByAppendingPathComponent\cf0 :[\cf4 NSString\cf0  \cf4 stringWithFormat\cf0 :\cf3 @"Tracking%d.png"\cf0 ,[\cf4 app\cf0 .\cf4 trackingIdStr\cf0  \cf4 intValue\cf0 ]]];\
+            \cf4 NSData\cf0  *pngData = \cf4 UIImagePNGRepresentation\cf0 (\cf2 self\cf0 .\cf4 portraitImageView\cf0 .\cf4 image\cf0 );\
+            [pngData \cf4 writeToFile\cf0 :filePath \cf4 atomically\cf0 :\cf2 YES\cf0 ];\
+            \
+            [\cf2 self\cf0 .\cf4 navigationController\cf0  \cf4 popViewControllerAnimated\cf0 :\cf2 YES\cf0 ];\
+        \}\
+    \}\
+\}\
+\
+\cf2 if\cf0  (buttonIndex==0)\
+         \{\
+             \cf4 NSString\cf0  *docsDir;\
+             \cf4 NSArray\cf0  *dirPaths;\
+             dirPaths = \cf4 NSSearchPathForDirectoriesInDomains\cf0 (\cf4 NSDocumentDirectory\cf0 , \cf4 NSUserDomainMask\cf0 , \cf2 YES\cf0 );\
+             \
+             docsDir = dirPaths[0];\
+             \cf4 NSString\cf0  *filePath = [docsDir \cf4 stringByAppendingPathComponent\cf0 :[\cf4 NSString\cf0  \cf4 stringWithFormat\cf0 :\cf3 @"Tracking%@.png"\cf0 ,\cf4 app\cf0 .\cf4 trackingIdStr\cf0 ]];\
+             \cf2 BOOL\cf0  success = [[\cf4 NSFileManager\cf0  \cf4 defaultManager\cf0 ] \cf4 removeItemAtPath\cf0 :filePath \cf4 error\cf0 :\cf2 nil\cf0 ];\
+             \cf2 if\cf0  (success) \{\
+             \}\cf2 else\cf0 \{\}\
+             \
+             \cf4 sqlite3_stmt\cf0     *statement;\
+             \cf2 const\cf0  \cf2 char\cf0  *dbpath = [\cf4 _databasePath\cf0  \cf4 UTF8String\cf0 ];\
+             \
+             \cf2 if\cf0  (\cf4 sqlite3_open\cf0 (dbpath, &\cf4 _contactDB\cf0 ) == \cf2 SQLITE_OK\cf0 )\
+             \{\
+             \cf4 NSString\cf0  *insertSQL = [\cf4 NSString\cf0  \cf4 stringWithFormat\cf0 :\cf3 @"DELETE FROM Tracking WHERE ID=\\"%d\\""\cf0 ,[\cf4 app\cf0 .\cf4 trackingIdStr\cf0  \cf4 intValue\cf0 ]];\
+             \
+             \cf2 const\cf0  \cf2 char\cf0  *insert_stmt = [insertSQL \cf4 UTF8String\cf0 ];\
+             \cf4 sqlite3_prepare_v2\cf0 (\cf4 _contactDB\cf0 , insert_stmt,-1, &statement, \cf2 NULL\cf0 );\
+             \cf2 if\cf0  (\cf4 sqlite3_step\cf0 (statement) == \cf2 SQLITE_DONE\cf0 )\
+             \{\
+             \cf4 NSLog\cf0 (\cf3 @"Contact added"\cf0 );\
+             \
+             \} \cf2 else\cf0  \{\
+             \cf4 NSLog\cf0 (\cf3 @"Failed to add contact"\cf0 );\
+             \}\
+             \cf4 sqlite3_finalize\cf0 (statement);\
+             \cf4 sqlite3_close\cf0 (\cf4 _contactDB\cf0 );\
+             \
+             [\cf2 self\cf0 .\cf4 navigationController\cf0  \cf4 popToRootViewControllerAnimated\cf0 :\cf2 YES\cf0 ];\
+             \}\
+         \}\
+}

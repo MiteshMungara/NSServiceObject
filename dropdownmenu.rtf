@@ -1,0 +1,224 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1348\cocoasubrtf170
+{\fonttbl\f0\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue255;\red43\green131\blue159;\red163\green21\blue21;
+\red0\green128\blue0;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\deftab674
+\pard\tx674\pardeftab674\pardirnatural
+
+\f0\fs28 \cf0 \CocoaLigature0 \
+\
+\cf2 #pragma mark -- Days Dropdown\
+\cf0 -(\cf2 IBAction\cf0 )dropdownOFGenderBtnPressed:(\cf2 id\cf0 )sender\
+\{\
+    \cf3 NSString\cf0  *deviceType = [\cf3 UIDevice\cf0  \cf3 currentDevice\cf0 ].\cf3 model\cf0 ;\
+    \cf2 if\cf0 (\cf3 dropDown\cf0  == \cf2 nil\cf0 ) \{\
+        \cf3 CGFloat\cf0  f;\
+        \cf2 if\cf0 ([deviceType \cf3 isEqualToString\cf0 :\cf4 @"iPhone"\cf0 ])\
+        \{\
+            f = 75;\
+        \}\
+        \cf2 else\cf0  \cf2 if\cf0 ([deviceType \cf3 isEqualToString\cf0 :\cf4 @"iPhone Simulator"\cf0 ])\
+        \{\
+            f = 75;\
+        \}\
+        \cf2 else\cf0 \
+        \{\
+            f = 105;\
+        \}\
+        \cf3 dropDown\cf0  = [[\cf3 NIDropDown\cf0  \cf3 alloc\cf0 ]\cf3 showDropDown\cf0 :sender :&f :\cf3 GenderArr\cf0  :\cf3 GenderArr\cf0  :\cf4 @"down"\cf0 ];\
+        \cf3 dropDown\cf0 .\cf3 tag\cf0 =1;\
+        \cf3 dropDown\cf0 .\cf3 delegate\cf0  = \cf2 self\cf0 ;\
+        \
+    \}\
+    \cf2 else\cf0  \{\
+        [\cf3 dropDown\cf0  \cf3 hideDropDown\cf0 :sender];\
+        [\cf2 self\cf0  \cf3 rel\cf0 ];\
+    \}\
+    [\cf2 self\cf0  \cf3 pickerDismiss\cf0 ];\
+    \
+\}\
+\cf2 #pragma mark -- To City Dropdown\
+\cf0 -(\cf2 void\cf0 )AutofillTooCitytextfill:(\cf2 id\cf0 )sender\
+\{\
+    [\cf3 dropDown\cf0  \cf3 closeDropDown\cf0 ];\
+    \cf3 dropDown\cf0 =\cf2 nil\cf0 ;\
+    \cf3 NSString\cf0  *tcitystr = \cf3 txttocity\cf0 .\cf3 text\cf0 ;\
+    \cf2 if\cf0  (![tcitystr \cf3 isEqualToString\cf0 :\cf4 @""\cf0 ])\
+    \{\
+        \cf3 NSString\cf0  *tocity = \cf3 txttocity\cf0 .\cf3 text\cf0 ;\
+        \
+        \cf3 NSPredicate\cf0  *pred = [\cf3 NSPredicate\cf0  \cf3 predicateWithFormat\cf0 :\cf4 @"SELF beginswith[c] %@"\cf0 ,tocity];\
+        \cf3 tempToCityNamearr\cf0  = [\cf3 autoCompleteArray\cf0  \cf3 filteredArrayUsingPredicate\cf0 :pred];\
+        \
+        \
+        \cf3 NSString\cf0  *deviceType = [\cf3 UIDevice\cf0  \cf3 currentDevice\cf0 ].\cf3 model\cf0 ;\
+        \cf2 if\cf0 (\cf3 dropDown\cf0  == \cf2 nil\cf0 ) \{\
+            \cf3 CGFloat\cf0  f=1;\
+            \cf2 if\cf0 ([deviceType \cf3 isEqualToString\cf0 :\cf4 @"iPhone"\cf0 ])\
+            \{\
+                \cf2 for\cf0  (\cf2 int\cf0  i=0; i<\cf3 tempToCityNamearr\cf0 .\cf3 count\cf0 ; i++)\
+                \{\
+                    \cf2 if\cf0  (f < 95)\
+                    \{\
+                    f=f+26;\
+                    \}\
+                \}\
+            \}\
+            \cf2 else\cf0  \cf2 if\cf0 ([deviceType \cf3 isEqualToString\cf0 :\cf4 @"iPhone Simulator"\cf0 ])\
+            \{\
+                \cf2 for\cf0  (\cf2 int\cf0  i=0; i<\cf3 tempToCityNamearr\cf0 .\cf3 count\cf0 ; i++) \{\
+                    f=f+26;\
+                \}\
+            \}\
+            \cf2 else\cf0 \
+            \{\
+                \cf2 for\cf0  (\cf2 int\cf0  i=0; i<\cf3 tempToCityNamearr\cf0 .\cf3 count\cf0 ; i++)\
+                \{\
+                    \cf2 if\cf0  (f < 135)\
+                    \{\
+                    f=f+30;\
+                    \}\
+                \}\
+            \}\
+            \cf2 if\cf0  (\cf3 cityNameArray\cf0 )\
+            \{\
+            \cf3 dropDown\cf0  = [[\cf3 NIDropDown\cf0  \cf3 alloc\cf0 ]\cf3 showDropDown\cf0 :sender :&f :\cf3 tempToCityNamearr\cf0  :\cf3 tempToCityNamearr\cf0  :\cf4 @"down"\cf0 ];\
+            \cf3 dropDown\cf0 .\cf3 tag\cf0 =2;\
+            \cf3 dropDown\cf0 .\cf3 delegate\cf0  = \cf2 self\cf0 ;\
+           \}\
+        \}\
+        \cf2 else\cf0  \{\
+            [\cf3 dropDown\cf0  \cf3 hideDropDown\cf0 :sender];\
+            [\cf2 self\cf0  \cf3 rel\cf0 ];\
+        \}\
+        [\cf2 self\cf0  \cf3 pickerDismiss\cf0 ];\
+        \
+    \}\
+    \cf2 else\cf0 \
+    \{\
+        [\cf3 dropDown\cf0  \cf3 closeDropDown\cf0 ];\
+        [\cf2 self\cf0  \cf3 rel\cf0 ];\
+    \}\
+\}\
+\
+\cf2 #pragma mark -- Days Dropdown\
+\cf0 -(\cf2 IBAction\cf0 )dropdownOFDaysBtnPressed:(\cf2 id\cf0 )sender\
+\{\
+    \cf3 NSString\cf0  *deviceType = [\cf3 UIDevice\cf0  \cf3 currentDevice\cf0 ].\cf3 model\cf0 ;\
+    \cf2 if\cf0 (\cf3 dropDown\cf0  == \cf2 nil\cf0 ) \{\
+        \cf3 CGFloat\cf0  f;\
+        \cf2 if\cf0 ([deviceType \cf3 isEqualToString\cf0 :\cf4 @"iPhone"\cf0 ])\
+        \{\
+            f = 120;\
+        \}\
+        \cf2 else\cf0  \cf2 if\cf0 ([deviceType \cf3 isEqualToString\cf0 :\cf4 @"iPhone Simulator"\cf0 ])\
+        \{\
+            f = 120;\
+        \}\
+        \cf2 else\cf0 \
+        \{\
+            f = 165;\
+        \}\
+        \cf3 dropDown\cf0  = [[\cf3 NIDropDown\cf0  \cf3 alloc\cf0 ]\cf3 showDropDown\cf0 :sender :&f :\cf3 rsArr\cf0  :\cf3 rsArr\cf0  :\cf4 @"down"\cf0 ];\
+        \cf3 dropDown\cf0 .\cf3 tag\cf0 =6;\
+        \cf3 dropDown\cf0 .\cf3 delegate\cf0  = \cf2 self\cf0 ;\
+       \
+    \}\
+    \cf2 else\cf0  \{\
+        [\cf3 dropDown\cf0  \cf3 hideDropDown\cf0 :sender];\
+        [\cf2 self\cf0  \cf3 rel\cf0 ];\
+    \}\
+    [\cf2 self\cf0  \cf3 pickerDismiss\cf0 ];\
+    \
+\}\
+\
+\cf2 #pragma mark -- Type of Car dropdown\
+\cf0 -(\cf2 IBAction\cf0 )dropdownOFTypeOfCarBtnPressed:(\cf2 id\cf0 )sender\
+\{\
+    [\cf2 self\cf0  \cf3 getcarrecordarray\cf0 ];\
+    \cf3 NSString\cf0  *deviceType = [\cf3 UIDevice\cf0  \cf3 currentDevice\cf0 ].\cf3 model\cf0 ;\
+    \cf2 if\cf0 (\cf3 dropDown\cf0  == \cf2 nil\cf0 ) \{\
+        \cf3 CGFloat\cf0  f=1;\
+        \cf2 if\cf0 ([deviceType \cf3 isEqualToString\cf0 :\cf4 @"iPhone"\cf0 ])\
+        \{\
+            \cf2 for\cf0  (\cf2 int\cf0  i=0; i<\cf3 typecarArray\cf0 .\cf3 count\cf0 ; i++) \{\
+                \cf2 if\cf0  (f < 95)\
+                \{\
+                    f=f+26;\
+                \}\
+                \
+            \}\
+        \}\
+        \cf2 else\cf0  \cf2 if\cf0 ([deviceType \cf3 isEqualToString\cf0 :\cf4 @"iPhone Simulator"\cf0 ])\
+        \{\
+            \cf2 for\cf0  (\cf2 int\cf0  i=0; i<\cf3 typecarArray\cf0 .\cf3 count\cf0 ; i++) \{\
+                f=f+26;\
+            \}\
+        \}\
+        \cf2 else\cf0 \
+        \{\
+            \cf2 for\cf0  (\cf2 int\cf0  i=0; i<\cf3 typecarArray\cf0 .\cf3 count\cf0 ; i++) \{\
+                \cf2 if\cf0  (f < 115)\
+                \{\
+                f=f+30;\
+                \}\
+            \}\
+        \}\
+        \
+        \cf3 dropDown\cf0  = [[\cf3 NIDropDown\cf0  \cf3 alloc\cf0 ]\cf3 showDropDown\cf0 :sender :&f :\cf3 typecarArray\cf0  :\cf3 typecarArray\cf0  :\cf4 @"down"\cf0 ];\
+        \cf3 dropDown\cf0 .\cf3 tag\cf0 =5;\
+      \cf5 //  [dropDown opendropdownupper];\cf0 \
+\
+        \cf3 dropDown\cf0 .\cf3 delegate\cf0  = \cf2 self\cf0 ;\
+        \cf3 dropDownTypeOfCarButton\cf0 .\cf3 selected\cf0  = \cf2 YES\cf0 ;\
+        \
+    \}\
+    \cf2 else\cf0  \{\
+        \
+        [\cf3 dropDown\cf0  \cf3 hideDropDown\cf0 :sender];\
+        [\cf2 self\cf0  \cf3 rel\cf0 ];\
+    \}\
+    [\cf2 self\cf0  \cf3 pickerDismiss\cf0 ];\
+   \
+\}\
+\
+-(\cf2 void\cf0 )rel\{\
+    \cf5 //[dropDown release];\cf0 \
+    \cf3 dropDown\cf0  = \cf2 nil\cf0 ;\
+    \cf5 // dropOnOff = NO;\cf0 \
+\}\
+\
+- (\cf2 void\cf0 )niDropDownDelegateMethodIndex:(\cf2 int\cf0 ) index\
+\{\
+    \cf2 if\cf0  (\cf3 dropDown\cf0 .\cf3 tag\cf0 ==1)\
+    \{\
+        \cf3 txtfromcity\cf0 .\cf3 text\cf0 =[\cf3 tempFromCityNamearr\cf0  \cf3 objectAtIndex\cf0 :index];\
+    \}\
+    \cf2 if\cf0  (\cf3 dropDown\cf0 .\cf3 tag\cf0 ==2)\
+    \{\
+        \cf3 txttocity\cf0 .\cf3 text\cf0 =[\cf3 tempToCityNamearr\cf0  \cf3 objectAtIndex\cf0 :index];\
+    \}\
+    \cf2 if\cf0 (\cf3 dropDown\cf0 .\cf3 tag\cf0 ==5)\
+    \{\
+        \cf3 txtcar\cf0 .\cf3 text\cf0  =[\cf3 typecarArray\cf0  \cf3 objectAtIndex\cf0 :index];\
+    \}\
+    \cf2 if\cf0 (\cf3 dropDown\cf0 .\cf3 tag\cf0 ==6)\
+    \{\
+        \cf3 txttotalday\cf0 .\cf3 text\cf0  =[\cf3 rsArr\cf0  \cf3 objectAtIndex\cf0 :index];\
+    \}\
+    \
+\}\
+- (\cf2 void\cf0 ) niDropDownDelegateMethod: (\cf3 NIDropDown\cf0  *) sender\
+\{\
+    [\cf2 self\cf0  \cf3 rel\cf0 ];\
+\}\
+\
+-(\cf2 void\cf0 )pickerDismiss\
+\{\
+    [\cf3 txtpickupdate\cf0  \cf3 resignFirstResponder\cf0 ];\
+    [\cf3 txtpickuptime\cf0  \cf3 resignFirstResponder\cf0 ];\
+    [\cf3 txtname\cf0  \cf3 resignFirstResponder\cf0 ];\
+    [\cf3 txtemail\cf0  \cf3 resignFirstResponder\cf0 ];\
+    \
+\}}
